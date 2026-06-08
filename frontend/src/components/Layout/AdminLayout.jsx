@@ -8,7 +8,7 @@ function AdminLayout() {
 
       <Sidebar />
 
-      <main className="flex-1">
+      <main className=" flex-1 min-h-screen ml-64 md:ml-64">
         <Outlet />
       </main>
 

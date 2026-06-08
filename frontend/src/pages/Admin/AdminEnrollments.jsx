@@ -4,17 +4,31 @@ import {
   Eye,
 } from "lucide-react";
 
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo, useState, useEffect } from "react";
 import { CourseContext } from "../../context/CourseContext";
+import { getAllEnrollments } from "../../services/courseService"
 
-function Enrollments() {
+ function Enrollments() {
 
-  const { enrolledCourses } =
-    useContext(CourseContext);
+ 
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
+
+  useEffect(() => {
+
+    const fetchData =
+      async () => {
+
+        const data = await getAllEnrollments();
+
+        setEnrolledCourses(data);
+      };
+
+    fetchData();
+
+  }, []);
 
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] =
-    useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
 
   // Filter Logic
 
@@ -25,15 +39,16 @@ function Enrollments() {
       const searchText = search.toLowerCase();
 
       const matchesSearch =
-        item.student?.name
-          ?.toLowerCase()
-          .includes(searchText)
+        
+  item.courseId?.title
+    ?.toLowerCase()
+    .includes(searchText)
 
-        ||
+  ||
 
-        item.course?.title
-          ?.toLowerCase()
-          .includes(searchText);
+  item.courseId?.instructor
+    ?.toLowerCase()
+    .includes(searchText);
 
       const matchesStatus =
         statusFilter === "All"
@@ -77,7 +92,7 @@ function Enrollments() {
   return (
     <div className="text-white  bg-gradient-to-b
         from-[#071028]
-        to-[#020617] h-screen p-6   ">
+        to-[#020617] min-h-screen p-6   ">
 
       {/* Header */}
 
@@ -165,21 +180,9 @@ function Enrollments() {
           "
         >
 
-          <option>
-            All
-          </option>
-
-          <option>
-            Active
-          </option>
-
-          <option>
-            Pending
-          </option>
-
-          <option>
-            Cancelled
-          </option>
+          <option value="All">All</option>
+<option value="active">Active</option>
+<option value="completed">Completed</option>
 
         </select>
 
@@ -238,14 +241,6 @@ function Enrollments() {
                 Status
               </th>
 
-              <th className="
-                text-left
-                px-6
-                py-4
-              ">
-                Actions
-              </th>
-
             </tr>
 
           </thead>
@@ -258,7 +253,7 @@ function Enrollments() {
               filteredEnrollments.map((item) => (
 
                 <tr
-                  key={item.id}
+                  key={item._id}
                   className="
                     border-t
                     border-slate-800
@@ -282,11 +277,11 @@ function Enrollments() {
 
                       <img
                         src={
-                          // "https://i.pravatar.cc/100"
+                    
                            "https://cdn3.iconfinder.com/data/icons/vector-icons-6/96/256-1024.png"
                         }
                         alt={
-                          item.student?.name
+                          item.userId?.name
                         }
                         className="
                           w-11
@@ -301,14 +296,14 @@ function Enrollments() {
                         <h3 className="
                           font-medium
                         ">
-                          {item.student?.name}
+                          {item.userId?.name}
                         </h3>
 
                         <p className="
                           text-sm
                           text-slate-400
                         ">
-                          {item.student?.email}
+                          {item.userId?.email}
                         </p>
 
                       </div>
@@ -327,8 +322,8 @@ function Enrollments() {
                     <div className="flex items-center gap-3">
 
                       <img
-                        src={item.course?.image || "https://img.freepik.com/premium-vector/modern-design-concept-no-image-found-design_637684-228.jpg?w=2000"}
-                        alt={item.course?.title}
+                        src={item.courseId?.image || "https://img.freepik.com/premium-vector/modern-design-concept-no-image-found-design_637684-228.jpg?w=2000"}
+                        alt={item.courseId?.title}
                         className="
                           w-14
                           h-10
@@ -340,14 +335,14 @@ function Enrollments() {
                       <div>
 
                         <h1 className="font-medium">
-                          {item.course?.title}
+                          {item.courseId?.title}
                         </h1>
 
                         <p className="
                           text-sm
                           text-slate-400
                         ">
-                          {item.course?.instructor}
+                          {item.courseId?.instructor}
                         </p>
 
                       </div>
@@ -363,7 +358,7 @@ function Enrollments() {
                     py-4
                     text-slate-400
                   ">
-                    {item.enrolledAt}
+                   {new Date(item.enrolledAt).toLocaleDateString()}
                   </td>
 
                   {/* Status */}
@@ -384,31 +379,7 @@ function Enrollments() {
                       {item.status}
                     </span>
 
-                  </td>
-
-                  {/* Actions */}
-
-                  <td className="
-                    px-6
-                    py-4
-                  ">
-
-                    <button className="
-                      p-2
-                      rounded-lg
-                      border
-                      border-orange-500
-                      text-orange-400
-                      hover:bg-orange-500
-                      hover:text-white
-                      transition-all
-                    ">
-
-                      <Eye size={18} />
-
-                    </button>
-
-                  </td>
+                  </td>           
 
                 </tr>
 

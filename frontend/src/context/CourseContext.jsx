@@ -7,14 +7,14 @@ function CourseProvider({ children }) {
   const [enrolledCourses, setEnrolledCourses] = useState([])
 
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    const storedCourses =
-      JSON.parse(localStorage.getItem("courses")) || [];
+  //   const storedCourses =
+  //     JSON.parse(localStorage.getItem("courses")) || [];
 
-    setEnrolledCourses(storedCourses);
+  //   setEnrolledCourses(storedCourses);
 
-  }, []);
+  // }, []);
 
 
   return (

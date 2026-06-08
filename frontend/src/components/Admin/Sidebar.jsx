@@ -17,33 +17,37 @@ from "react-router-dom"
 import { useContext } from "react";
 import { AuthContext }from "../../context/AuthContext"
 function Sidebar() {
-
-    const navigate = useNavigate()
-  // const user =
-  // localStorage.getItem("user")
-   const {user} = useContext(AuthContext);
-
-  const handleLogout = () => {
-
-  // localStorage.removeItem(
-  //   "isLoggedIn"
-  // )
-    localStorage.removeItem(
-    "user"
-  )
-    setIsLoggedIn(false)
-  // window.location.reload()
-  navigate("/login")
-
-}
 const {
   isLoggedIn,
   setIsLoggedIn
 } = useContext(AuthContext)
+    const navigate = useNavigate()
+
+   const {user} = useContext(AuthContext);
+
+  const handleLogout = () => {
+
+    localStorage.removeItem(
+    "role"
+  )
+    localStorage.removeItem(
+    "user"
+  )
+    localStorage.removeItem(
+    "token"
+  )
+ 
+    setIsLoggedIn(false)
+
+  navigate("/login")
+
+}
+
   return (
    <aside className="
+      fixed
         w-64
-        min-h-screen
+       h-full
         bg-gradient-to-b
     from-[#0B1739]
     to-[#081225]
@@ -177,7 +181,7 @@ const {
         <PlusCircle  size={18} />
          Add Courese
         </NavLink>
-        <NavLink to="" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10">
+        <NavLink to="/admin/settings" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10">
         <Settings size={18}/>
           Setting
         </NavLink>

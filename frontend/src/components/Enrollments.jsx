@@ -3,26 +3,49 @@ import { useEffect, useState } from "react"
 import Button from "../components/ui/Button";
 import CourseCard from "../components/CourseCard";
 import EmptyState from "../components/ui/EmptyState";
+import {getMyEnrollments, removeEnrollment} from "../services/courseService";
 function Enrollments() {
+const [savedCourses,setSavedCourses] =  useState([]);
+  async function removeCourse(id) {
 
-  const [savedCourses, setSavedCourses] = useState(
-    JSON.parse(localStorage.getItem("courses")) || []
-  )
+  try {
 
-  function removeCourse(indexToRemove) {
+    await removeEnrollment(id);
 
-    const updatedCourses = savedCourses.filter(
-      (_, index) => index !== indexToRemove
-    )
-    
+    setSavedCourses(
+      savedCourses.filter(
+        course => course._id !== id
+      )
+    );
 
-    setSavedCourses(updatedCourses)
+  } catch (error) {
 
-    localStorage.setItem(
-      "courses",
-      JSON.stringify(updatedCourses)
-    )
+    console.log(error);
+
   }
+}
+useEffect(() => {
+  
+  const fetchEnrollments =
+    async () => {
+
+      try {
+
+        const data = await getMyEnrollments();
+ 
+        setSavedCourses(data);
+
+      } catch (error) {
+
+         console.log(error)
+
+      }
+
+    };
+
+  fetchEnrollments();
+
+}, []);  
   
   return (
 
@@ -40,11 +63,11 @@ function Enrollments() {
                 
                 <CourseCard
               key={course._id}
-          {...course.course}
+          {...course.courseId}
            
   
              buttonText="Remove"
-             buttonAction={() => removeCourse(index)}
+             buttonAction={() => removeCourse(course._id)}
             />
             ))
 

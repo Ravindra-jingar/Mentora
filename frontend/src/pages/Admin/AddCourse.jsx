@@ -71,7 +71,7 @@ setLoading(true);
 
     <AuthLayout
       bgImage={null}
-  className="bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#020617]"
+  className="bg-gradient-to-br w-full from-[#0f172a] via-[#111827] to-[#020617]"
 
       title="Add Course"
       subtitle="Create a new course"

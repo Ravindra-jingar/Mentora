@@ -1,4 +1,5 @@
 require("dotenv").config()
+const jwt =  require("jsonwebtoken");
 const mongoose = require("mongoose")
 const express = require("express")
 const cors = require("cors")
@@ -6,6 +7,9 @@ const app = express()
 const bcrypt = require("bcrypt")
 const Course = require("./models/Course")
 const User = require("./models/User")
+const { verifyToken} = require("./middlewares/authMiddleware")
+const { isAdmin } = require("./middlewares/adminmiddleware")
+const Enrollment = require("./models/Enrollment");
 app.use(express.json()) //Without this:backend cannot read JSON data
 app.use(cors())
 
@@ -17,39 +21,15 @@ mongoose.connect(process.env.DB_URL)
 
   })
   .catch((err) => {
-
-    console.log(err)
-    //  process.exit(1);
-
+     console.log("MongoDB connection error:", err)
   })
 
 
-// app.post("/courses", async(req, res) => {
 
-//   try {
-
-//     const newCourse = new Course(req.body)
-
-//     await newCourse.save()
-
-//     res.json({
-//       message: "Course Saved",
-//       course: newCourse
-//     })
-
-//   } catch (error) {
-
-//     res.status(500).json({
-//       message: "Error Saving Course"
-//     })
-
-//   }
-
-// })
-app.post("/courses", async (req, res) => {
+app.post("/courses", verifyToken,
+  isAdmin, async (req, res) => {
   try {
 
-    console.log("Received:", req.body);
 
     const newCourse = new Course(req.body);
 
@@ -61,40 +41,20 @@ app.post("/courses", async (req, res) => {
     });
 
   } catch (error) {
-
-    console.error(error);
-
     res.status(500).json({
       message: error.message
     });
   }
 });
-app.delete("/courses/:id", async(req, res) => {
 
- try {
-
-    await Course.findByIdAndDelete(req.params.id)
-
-    res.json({
-      message: "Course Deleted"
-    })
-
-  } catch (error) {
-
-    res.status(500).json({
-      message: "Delete Failed"
-    })
-
-  }
-
-})
 app.get("/", (req, res) => {
 
   res.send("Backend Running")
 
 })
 
-app.put("/courses/:id", async (req, res) => {
+app.put("/courses/:id",verifyToken,
+  isAdmin, async (req, res) => {
 
   try {
 
@@ -111,7 +71,7 @@ app.put("/courses/:id", async (req, res) => {
     res.json(updatedCourse)
 
   } catch (error) {
-    console.log(error)
+    
     res.status(500).json({
       message: "Update Failed"
     })
@@ -177,15 +137,13 @@ app.get("/students",
     try {
 
       const students =
-        await User.find()
+        await User.find({ role: "user" });
 
       res.json(students)
 
     }
 
     catch(error) {
-
-      console.log(error)
 
       res.status(500).json({
 
@@ -197,6 +155,27 @@ app.get("/students",
     }
 
 })
+
+app.delete(
+  "/students/:id",
+  verifyToken,
+  isAdmin,
+  async (req, res) => {
+
+    const { id } = req.params;
+
+    await Enrollment.deleteMany({
+      userId: req.params.id,
+    });
+
+    await User.findByIdAndDelete(id);
+
+    res.json({
+      message:
+        "Student deleted successfully",
+    });
+  }
+);
 app.post("/login", async (req, res) => {
 
   try {
@@ -223,12 +202,22 @@ app.post("/login", async (req, res) => {
       })
 
     }
-
+     const token = jwt.sign(
+  {
+    id: user._id,
+    role: user.role,
+  },
+  process.env.JWT_SECRET,
+  {
+    expiresIn: "7d",
+  }
+);
     res.json({
       message: "Login Successful",
+      token,
       user: {
-
-    name: user.name,
+        
+        name: user.name,
     email: user.email,
     role: user.role
 
@@ -238,9 +227,6 @@ app.post("/login", async (req, res) => {
   }
 
   catch (error) {
-
-    console.log(error)
-
     res.status(500).json({
       message: "Login Failed"
     })
@@ -252,14 +238,12 @@ app.post("/login", async (req, res) => {
 //course details pagae server
 app.get("/courses/:id", async(req, res) => {
 
-  console.log(req.params.id)
-
   try {
 
     const course =
       await Course.findById(req.params.id)
 
-    console.log(course)
+    
 
     res.json(course)
 
@@ -267,7 +251,9 @@ app.get("/courses/:id", async(req, res) => {
 
   catch(error) {
 
-    console.log(error)
+    res.status(500).json({
+      message: "Error Fetching Course"
+    })
 
   }
 
@@ -281,7 +267,9 @@ app.get("/courses-details/:id", async (req, res) => {
 
   
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      message:"error fetching course details"
+    })
   }
   
 
@@ -289,14 +277,17 @@ app.get("/courses-details/:id", async (req, res) => {
 
 //admin dashbord delete course
 app.delete("/courses/:id",
-
+ verifyToken,
+  isAdmin,
   async (req, res) => {
 
     try {
 
-      await Course.findByIdAndDelete(
+    await Course.findByIdAndDelete(
         req.params.id
       )
+
+
 
       res.json({
         message: "Course Deleted"
@@ -305,16 +296,230 @@ app.delete("/courses/:id",
     }
 
     catch (error) {
-
-      console.log(error)
-
+ res.status(500).json({
+      message:"error fetching course details"
+    })
     }
 
 })
 
 
+//enrollments
+
+app.post(
+  "/enroll",
+  verifyToken,
+  async (req, res) => {
+     
+    try {
+
+      const { courseId } = req.body;
+
+      const existingEnrollment =
+        await Enrollment.findOne({
+          userId: req.user.id,
+          courseId,
+        });
+      
+      if (existingEnrollment) {
+        return res.status(400).json({
+          message:
+            "Course Already Enrolled",
+        });
+      }
+
+      const enrollment =
+        new Enrollment({
+          userId: req.user.id,
+          courseId,
+        });
+
+      await enrollment.save();
+
+      res.json({
+        message:
+          "Enrollment Successful",
+        enrollment,
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        message:
+          "Enrollment Failed",
+      });
+
+    }
+  }
+);
+app.get(
+  "/enrollments",
+  verifyToken,
+  async (req, res) => {
+ 
+    try {
+
+      const enrollments =
+        await Enrollment.find({
+          userId: req.user.id,
+        })
+          .populate("courseId")
+          .populate("userId");
+
+      res.json(
+        enrollments
+      );
+
+    } catch (error) {
+
+
+      res.status(500).json({
+        message:
+          "Error Fetching Enrollments",
+      });
+
+    }
+
+  }
+);
+app.delete(
+  "/enrollments/:id",
+  verifyToken,
+  async (req, res) => {
+    try {
+
+      const enrollment =
+        await Enrollment.findById(
+          req.params.id
+        );
+
+      if (!enrollment) {
+        return res.status(404).json({
+          message: "Enrollment not found",
+        });
+      }
+
+      if (
+        enrollment.userId.toString() !==
+        req.user.id
+      ) {
+        return res.status(403).json({
+          message: "Unauthorized",
+        });
+      }
+
+      await Enrollment.findByIdAndDelete(
+        req.params.id
+      );
+
+      res.json({
+        message: "Enrollment removed",
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        message: "Delete failed",
+      });
+
+    }
+  }
+);
+
+app.get(
+ 
+  "/admin/enrollments",
+  verifyToken,
+  isAdmin,
+  async (req, res) => {
+   
+    const enrollments =
+      await Enrollment.find()
+        .populate("userId")
+        .populate("courseId");
+
+    res.json(enrollments);
+
+  }
+);
+
+//charts data
+app.get(
+  "/admin/charts",
+  verifyToken,
+  isAdmin,
+  async (req, res) => {
+
+    try {
+
+      // Students Growth
+
+      const students = await User.find({
+        role: "user",
+      }).sort({ createdAt: 1 });
+
+      let total = 0;
+
+      const studentGrowth = students.map(
+        (student) => {
+          total++;
+
+          return {
+            day: new Date(
+              student.createdAt
+            ).toLocaleDateString("en-IN", {
+              day: "numeric",
+              month: "short",
+            }),
+            students: total,
+          };
+        }
+      );
+
+      // Course Popularity
+
+      const enrollments =
+        await Enrollment.find()
+          .populate("courseId");
+
+      const courseMap = {};
+
+      enrollments.forEach((item) => {
+
+        const courseName =
+          item.courseId?.title;
+
+        if (!courseName) return;
+
+        courseMap[courseName] =
+          (courseMap[courseName] || 0) + 1;
+
+      });
+
+      const coursePopularity =
+        Object.entries(courseMap).map(
+          ([name, value]) => ({
+            name,
+            value,
+          })
+        );
+
+      res.json({
+        studentGrowth,
+        coursePopularity,
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        message: error.message,
+      });
+
+    }
+  }
+);
 app.listen(process.env.PORT, () => {
 
-  console.log("Server Started")
+ console.log(`Server running on port ${process.env.PORT}`)
 
 })

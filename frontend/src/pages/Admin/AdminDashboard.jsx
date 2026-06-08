@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import Courses from "../Courses"
 import StatsCard from "../../components/Admin/StatsCard"
-import { useContext, useMemo} from "react";
+import {  useMemo} from "react";
 import { CourseContext } from "../../context/CourseContext";
 import StudentsGrowthChart from "../../components/Charts/StudentsGrowthChart"
 import CoursePopularityChart from "../../components/Charts/CoursePopularityChart"
@@ -12,16 +12,47 @@ import {
   Wallet,
   GraduationCap
 } from "lucide-react";
-import { getCourses } from "../../services/courseService";
+import { getCourses, getAllEnrollments ,getChartsData} from "../../services/courseService";
 import { getStudents } from "../../services/studentService";
 import  Spinner  from "../../components/ui/Spinner.jsx"
 function AdminDashboard() {
   
  const [loading, setLoading] = useState(false);
  const [error, setError] = useState("")
- const { enrolledCourses } = useContext(CourseContext);
  const [courses, setCourses] = useState([])
  const [students, setStudents] = useState([])
+ const [enrolledCourses, setEnrolledCourses] = useState([])
+ 
+ const [studentGrowth, setStudentGrowth] = useState([]);
+  const [coursePopularity, setCoursePopularity] = useState([]);
+
+  useEffect(() => {
+    const fetchCharts = async () => {
+      try {
+        const data = await getChartsData();
+
+        setStudentGrowth(data.studentGrowth);
+        setCoursePopularity(data.coursePopularity);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchCharts();
+  }, []);
+
+ useEffect(() => {
+   
+       const fetchData =
+         async () => {
+   
+           const data = await getAllEnrollments();
+           setEnrolledCourses(data);
+         };
+   
+       fetchData();
+   
+     }, []);
 
 useEffect(() => {
   
@@ -66,6 +97,7 @@ useEffect(() => {
   if (loading) {
   return <Spinner />;
 }
+
 const totalCourses = courses.length
 
 const totalEnrollments =  enrolledCourses.length
@@ -75,7 +107,7 @@ const totalStudents =  students.length
 const recentEnrollments = enrolledCourses.slice(0, 5)
 
 const totalRevenue  = enrolledCourses.reduce((acc, item)=>{
-  const price = Number (item.course.price.replace(/[^0-9]/g, ""))
+  const price = Number (item.courseId.price.replace(/[^0-9]/g, ""))
   return acc + price
 },0)
 
@@ -157,8 +189,8 @@ const totalRevenue  = enrolledCourses.reduce((acc, item)=>{
             sm:grid-cols-1
             lg:grid-cols-2
             gap-6">
-   <StudentsGrowthChart/>
-   <CoursePopularityChart/>
+   <StudentsGrowthChart data={studentGrowth} />
+   <CoursePopularityChart data={coursePopularity} />
 
    </div>
 <div className="text-2xl
@@ -222,7 +254,7 @@ const totalRevenue  = enrolledCourses.reduce((acc, item)=>{
               recentEnrollments.map((item) => (
 
                 <tr
-                  key={item.id}
+                  key={item._id}
                   className="
                     border-t
                     border-slate-800
@@ -250,7 +282,7 @@ const totalRevenue  = enrolledCourses.reduce((acc, item)=>{
                            "https://cdn3.iconfinder.com/data/icons/vector-icons-6/96/256-1024.png"
                         }
                         alt={
-                          item.student?.name
+                          item.userId?.name
                         }
                         className="
                           w-11
@@ -265,14 +297,14 @@ const totalRevenue  = enrolledCourses.reduce((acc, item)=>{
                         <h3 className="
                           font-medium
                         ">
-                          {item.student?.name}
+                          {item.userId?.name}
                         </h3>
 
                         <p className="
                           text-sm
                           text-slate-400
                         ">
-                          {item.student?.email}
+                          {item.userId?.email}
                         </p>
 
                       </div>
@@ -291,8 +323,8 @@ const totalRevenue  = enrolledCourses.reduce((acc, item)=>{
                     <div className="flex items-center gap-3">
 
                       <img
-                        src={item.course?.image || "https://img.freepik.com/premium-vector/modern-design-concept-no-image-found-design_637684-228.jpg?w=2000"}
-                        alt={item.course?.title}
+                        src={item.courseId?.image || "https://img.freepik.com/premium-vector/modern-design-concept-no-image-found-design_637684-228.jpg?w=2000"}
+                        alt={item.courseId?.title}
                         className="
                           w-14
                           h-10
@@ -304,14 +336,14 @@ const totalRevenue  = enrolledCourses.reduce((acc, item)=>{
                       <div>
 
                         <h1 className="font-medium">
-                          {item.course?.title}
+                          {item.courseId?.title}
                         </h1>
 
                         <p className="
                           text-sm
                           text-slate-400
                         ">
-                          {item.course?.instructor}
+                          {item.courseId?.instructor}
                         </p>
 
                       </div>
@@ -339,8 +371,6 @@ const totalRevenue  = enrolledCourses.reduce((acc, item)=>{
                     </span>
 
                   </td>
-
-               
 
                 </tr>
 

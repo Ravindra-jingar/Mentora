@@ -14,35 +14,39 @@ const COLORS = [
   "#22c55e",
 ];
 
-function CoursePopularityChart() {
-const [courses, setCourses] = useState([])
-useEffect(() => {
+function CoursePopularityChart({ data }) {
+  const total = data.reduce(
+  (sum, item) => sum + item.value,
+  0
+);
+// const [courses, setCourses] = useState([])
+// useEffect(() => {
 
-  fetch("http://localhost:5000/courses")
+//   fetch("http://localhost:5000/courses")
 
-    .then((res) => res.json())
+//     .then((res) => res.json())
 
-    .then((data) => {
+//     .then((data) => {
 
-      setCourses(data)
+//       setCourses(data)
 
-    })
+//     })
 
-}, [])
-const data = courses.map((course) =>{
+// }, [])
+// const data = courses.map((course) =>{
  
-      return {
+//       return {
 
-        name: course.title,
+//         name: course.title,
 
-        value:
-          Math.floor(
-            Math.random() * 100
-          ) + 1
+//         value:
+//           Math.floor(
+//             Math.random() * 100
+//           ) + 1
 
-      }
+//       }
  
-})
+// })
 
   return (
 
@@ -93,8 +97,8 @@ const data = courses.map((course) =>{
                   data.map((entry, index) => (
 
                     <Cell
-                      key={index}
-                      fill={COLORS[index]}
+                     key={index}
+  fill={`hsl(${index * 50}, 90%, 45%)`}
                     />
 
                   ))
@@ -143,8 +147,7 @@ const data = courses.map((course) =>{
                       rounded-full
                     "
                     style={{
-                      backgroundColor:
-                        COLORS[index]
+                      backgroundColor: `hsl(${index * 50}, 70%, 55%)`
                     }}
                   />
 
@@ -163,7 +166,7 @@ const data = courses.map((course) =>{
                   text-white
                   font-semibold
                 ">
-                  {item.value}%
+                  {((item.value / total) * 100).toFixed(1)}%
                 </p>
 
               </div>

@@ -9,12 +9,11 @@ import AuthLayout from "../components/Layout/AuthLayout";
 import AuthInput from "../components/ui/AuthInput";
 import { loginUser } from "../services/authService";
 function Login() {
-const currentUser =
-  JSON.parse(localStorage.getItem("user"))
+const currentUser = JSON.parse(localStorage.getItem("user"))
 
   const { setIsLoggedIn } = useContext(AuthContext)
   const navigate = useNavigate()
- const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
@@ -28,6 +27,11 @@ const currentUser =
     );
 
     if (data.message === "Login Successful") {
+
+      localStorage.setItem(
+    "token",
+    data.token
+  );
       localStorage.setItem(
         "user",
         JSON.stringify(data.user)
@@ -48,7 +52,7 @@ const currentUser =
       navigate("/");
     }
   } catch (error) {
-    console.log(error);
+  
     alert(error.message);
   }
 } 

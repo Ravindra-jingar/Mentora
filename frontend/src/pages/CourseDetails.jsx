@@ -24,7 +24,6 @@ function CourseDetails() {
     try { 
       setLoading(true);
       const data = await getDetailCourse(id)
-console.log("Data:", data);
 
       setCourse(data);
 

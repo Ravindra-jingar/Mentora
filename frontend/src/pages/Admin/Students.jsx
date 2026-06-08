@@ -4,28 +4,53 @@ import {
   Trash2,
   Search,
 } from "lucide-react";
+import { getMyEnrollments, getAllEnrollments } from "../../services/courseService"
 import AuthInput from "../../components/ui/AuthInput";
 import { CourseContext } from "../../context/CourseContext";
-import {getStudents} from "../../services/studentService";
-import  Spinner  from "../../components/ui/Spinner.jsx"
+import {getStudents,deleteStudent } from "../../services/studentService";
+import  Spinner  from "../../components/ui/Spinner.jsx";
+import { toast } from "react-toastify";
 function Students() {
-   const [error, setError] = useState("")
-  const { enrolledCourses } = useContext(CourseContext);
+  const[error, setError] = useState("")
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [students, setStudents]= useState([])
   const [loading, setLoading] = useState(true)
-  
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredStudents = students.filter(
+  (student) =>
+    student.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase()) ||
+    student.email
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+);
+  useEffect(() => {
    
+       const fetchData =
+         async () => {
+   
+           const data = await getAllEnrollments();
+ 
+           setEnrolledCourses(data);
+         };
+   
+       fetchData();
+   
+     }, []);
+
+
   useEffect(() => {
     const fetchStudent = async () => {
 try{
 
   setLoading(true)
       const data = await getStudents()   
-        setStudents(data)
-        
+      setStudents(data)        
     }
 
-catch{
+catch(error){
        setError(error.message);  
 }finally{
 setLoading(false)
@@ -34,13 +59,39 @@ setLoading(false)
      fetchStudent() 
     
   }, [])
+
+ function handleDelete(id) {
+    
+    const fetchStudent = async () => {
+       try {
+         setLoading(true);
+   
+         const data = await deleteStudent(id);
+ 
+          setStudents((prevStudents) =>
+       prevStudents.filter(
+         (student) => student._id !== id
+       )
+     )
+     toast.success("Student succesfully deleted");
+       } catch (error) {
+         toast.error(error.message);
+   
+       } finally {
+         setLoading(false);
+       }
+     };
+   
+     fetchStudent();
+ }
+ 
   if (loading) {
     return <Spinner/> 
   }
   return (
      <div className="text-white  bg-gradient-to-b
         from-[#071028]
-        to-[#020617] h-screen p-6">
+        to-[#020617] min-h-screen p-6">
 
       {/* Top Section */}
 
@@ -71,18 +122,6 @@ setLoading(false)
           </p>
         </div>
 
-        <button className="
-          bg-orange-500
-          hover:bg-orange-600
-          px-5
-          py-3
-          rounded-xl
-          font-semibold
-          transition-all
-        ">
-          + Add Student
-        </button>
-
       </div>
 
       {/* Search */}
@@ -109,16 +148,20 @@ setLoading(false)
 
           <Search size={20} />
 
-          <input
-            type="text"
-            placeholder="Search students..."
-            className="
-            w-full
-              text-white
-              outline-none
-              
-            "
-          />
+         <input
+  type="text"
+  placeholder="Search students..."
+  value={searchTerm}
+  onChange={(e) =>
+    setSearchTerm(e.target.value)
+  }
+  className="
+    w-full
+    text-white
+    outline-none
+    bg-transparent
+  "
+/>
 
         </div>
 
@@ -128,10 +171,10 @@ setLoading(false)
 
       <div className="
         bg-slate-900
-        rounded-2xl
-        overflow-hidden
-        border
-        border-slate-800
+  rounded-2xl
+  border
+  border-slate-800
+  overflow-x-auto
         
       ">
 
@@ -195,10 +238,10 @@ setLoading(false)
           <tbody>
 
             {
-              students.map((student) => (
+              filteredStudents.map((student) => (
 
                 <tr
-                  key={student.id}
+                  key={student._id}
                   className="
                     border-t
                     border-slate-800
@@ -260,8 +303,15 @@ setLoading(false)
                   <td className="
                     px-6
                     py-4
+                    justify-center
+                    text-center
                   ">
-                 { enrolledCourses.length } 
+                 {
+  enrolledCourses.filter(
+    (item) =>
+      item.userId?._id === student._id
+  ).length
+}
                   
                   </td>
 
@@ -272,10 +322,17 @@ setLoading(false)
                     py-4
                     text-slate-400
                   ">
-                    {enrolledCourses.map((item)=>{
-                     return item.enrolledAt
-                       console.log("item",item.enrolledAt)
-                    })}
+                    {
+  new Date(student.createdAt)
+    .toLocaleDateString(
+      "en-IN",
+      {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }
+    )
+}
                   </td>
 
                   {/* Actions */}
@@ -291,15 +348,7 @@ setLoading(false)
                       gap-3
                     ">
 
-                      <button className="
-                        p-2
-                        rounded-lg
-                        bg-slate-800
-                        hover:bg-orange-500
-                        transition-all
-                      ">
-                        <Eye size={18} />
-                      </button>
+                      
 
                       <button className="
                         p-2
@@ -307,7 +356,7 @@ setLoading(false)
                         bg-slate-800
                         hover:bg-red-500
                         transition-all
-                      ">
+                      " onClick={() => handleDelete(student._id)}>
                         <Trash2 size={18} />
                       </button>
 

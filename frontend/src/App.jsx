@@ -8,7 +8,6 @@ const Home = lazy(() => import("./pages/Home"));
 
 const About = lazy(() => import("./pages/About"))
 const Courses = lazy(() => import("./pages/Courses"))
-const Contact = lazy(() => import("./pages/Contact"))
 const Login = lazy(() => import("./pages/Login"))
 const Enrollments = lazy(() => import("./components/Enrollments"))
 const Register = lazy(() => import("./pages/Register"))
@@ -23,6 +22,7 @@ const AdminCourses = lazy(() => import("./pages/Admin/AdminCourses"))
 const AdminEnrollments = lazy(() => import("./pages/Admin/AdminEnrollments"))
 const Students = lazy(() => import("./pages/Admin/Students"))
 const AddCourse = lazy(() => import("./pages/Admin/AddCourse"))
+const Settings = lazy(() => import("./pages/Admin/Settings"))
 import Spinner from "./components/ui/Spinner";
 function App() {
      const location = useLocation()
@@ -38,11 +38,9 @@ function App() {
 <Suspense fallback={<Spinner/>}>
       <Routes>
        
-          <Route path="/" element={<Home />} />
-        
+        <Route path="/" element={<Home />} />
         <Route path="/courses" element={<Courses />} />
         <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/enrollments"  
@@ -52,8 +50,7 @@ function App() {
               </ProtectedRoute>
                 }   />
          <Route path="/courses-details/:id" element={<CourseDetails />}/>
-         <Route
-  path="/admin"
+         <Route path="/admin"
   element={
     <AdminRoute>
       <AdminLayout />
@@ -72,6 +69,8 @@ function App() {
   <Route path="Adminenrollments" element={<AdminEnrollments />} />
 
   <Route path="add-course" element={<AddCourse />} />
+
+  <Route path="settings" element={<Settings />} />
 
 </Route>
          <Route path="/edit-course/:id" element={<EditCourse />}/>

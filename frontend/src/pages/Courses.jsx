@@ -9,75 +9,38 @@ import { toast } from "react-toastify"
 import Spinner from "../components/ui/Spinner";
 import {getStudents} from "../services/studentService";
 import { getCourses } from "../services/courseService";
+
+import { enrollCourse } from "../services/courseService";
 function Courses() {
   const [courses, setCourses] = useState([]);
   const [student, setStudent] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-   
+
   const {setEnrolledCourses} = useContext(CourseContext)
 
   const [search, setSearch] = useState("");
-  // const [inputValue, setInputValue] = useState("");
-
-function handleEnroll(props) {
-const loggedInUser = JSON.parse(
-  localStorage.getItem("user")
-)
-
- const existingCourses =  JSON.parse(localStorage.getItem("courses")) || []
-
-      const alreadyExists = existingCourses.find(
-        (course) => course.course.id === props._id
-      )
-
-      if(alreadyExists) {
-       toast.error("Course Already Enrolled")
-        return
-      }
-
-    const newCourse = {
  
-      id: crypto.randomUUID(),
-     
-      student: {
-            id: loggedInUser.id,
-  name: loggedInUser.name,
-  email: loggedInUser.email
-      },
+async function handleEnroll(props) {
 
-      course: {
-         id: props._id,
-         title: props.title,
-         price: props.price,
-         instructor: props.instructor,
-         image: props.image
-      },
+  try {
 
-      status: "pending",
+    await enrollCourse(
+      props._id
+    );
 
-      enrolledAt: new Date().toLocaleDateString(),
+    toast.success(
+      "Enrollment Successful"
+    );
 
-      progress: 0
-      
-   
+  } catch (error) {
 
-      
-    }
+    toast.error(
+      error.message
+    );
 
-        existingCourses.push(newCourse)
-      setEnrolledCourses(existingCourses)
-
-    localStorage.setItem(
-      "courses",
-      JSON.stringify(existingCourses)
-    )
-
-  
-  
-  toast.success("Course Added")
+  }
 }
-
 
  useEffect(() => {
     const fatchStudents = async () => {

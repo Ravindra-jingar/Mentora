@@ -9,17 +9,8 @@ import {
 } from "recharts";
 
 
-const data = [
-  { day: "May 12", students: 20 },
-  { day: "May 13", students: 30 },
-  { day: "May 14", students: 60 },
-  { day: "May 15", students: 65 },
-  { day: "May 16", students: 90 },
-  { day: "May 17", students: 105 },
-  { day: "May 18", students: 130 },
-];
 
-function StudentsGrowthChart() {
+function StudentsGrowthChart({ data }) {
 
   return (
 
