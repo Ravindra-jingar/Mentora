@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { toast } from "react-toastify"
-import bgImage from "../assets/bgImage.jpg";
-import  Button  from "../components/ui/Button"
+import bgImage from "../assets/bgimage.jpg";
 import AuthLayout from "../components/Layout/AuthLayout";
 import AuthInput from "../components/ui/AuthInput";
 import { registerUser} from "../services/authService";
