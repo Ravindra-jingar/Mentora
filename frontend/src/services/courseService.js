@@ -1,6 +1,7 @@
 // Get all courses
+const API_URL = "https://mentora-bt9q.onrender.com";
 export const getCourses = async () => {
-  const res = await fetch("http://localhost:5000/courses");
+  const res = await fetch(`${API_URL}/courses`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch courses");
@@ -12,7 +13,7 @@ export const getCourses = async () => {
 // Get one course
 export const getCourseById = async (id) => {
   const res = await fetch(
-    `http://localhost:5000/courses/${id}`
+    `${API_URL}/courses/${id}`
   );
 
   if (!res.ok) {
@@ -26,7 +27,7 @@ export const getCourseById = async (id) => {
 export const createCourse = async (courseData) => {
     const token = localStorage.getItem("token");
   const res = await fetch(
-    "http://localhost:5000/courses",
+    `${API_URL}/courses`,
     {
       method: "POST",
       headers: {
@@ -49,7 +50,7 @@ export const createCourse = async (courseData) => {
 export const updateCourse = async (id, courseData) => {
   const token = localStorage.getItem("token");
   const res = await fetch(
-    `http://localhost:5000/courses/${id}`,
+    `${API_URL}/courses/${id}`,
     {
       method: "PUT",
       headers: {
@@ -71,7 +72,7 @@ export const updateCourse = async (id, courseData) => {
 export const deleteCourse = async (id) => {
   const token = localStorage.getItem("token");
   const res = await fetch(
-    `http://localhost:5000/courses/${id}`,
+    `${API_URL}/courses/${id}`,
     {
       method: "DELETE",
       headers: {
@@ -90,7 +91,7 @@ export const deleteCourse = async (id) => {
 // get dtails of courese
 
 export const getDetailCourse = async (id) => {
-  const res = await fetch(`http://localhost:5000/courses-details/${id}`);
+  const res = await fetch(`${API_URL}/courses-details/${id}`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch courses");
@@ -104,7 +105,7 @@ export const enrollCourse = async (courseId) => {
   const token = localStorage.getItem("token");
 
   const res = await fetch(
-    "http://localhost:5000/enroll",
+    `${API_URL}/enroll`,
     {
       method: "POST",
 
@@ -137,7 +138,7 @@ export const getMyEnrollments =
       );
 
     const res = await fetch(
-      "http://localhost:5000/enrollments",
+      `${API_URL}/enrollments`,
       {
         headers: {
           Authorization:
@@ -156,7 +157,7 @@ export const getMyEnrollments =
       localStorage.getItem("token");
 
     const res = await fetch(
-      `http://localhost:5000/enrollments/${id}`,
+      `${API_URL}/enrollments/${id}`,
       {
         method: "DELETE",
         headers: {
@@ -175,7 +176,7 @@ export const getMyEnrollments =
     const token = localStorage.getItem("token");
 
     const res = await fetch(
-      "http://localhost:5000/admin/enrollments",
+      `${API_URL}/admin/enrollments`,
       {
         headers: {
           Authorization:
@@ -191,7 +192,7 @@ export const getMyEnrollments =
      const token = localStorage.getItem("token");
 
   const response = await fetch(
-    "http://localhost:5000/admin/charts",
+    `${API_URL}/admin/charts`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,

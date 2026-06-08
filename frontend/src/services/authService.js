@@ -1,5 +1,8 @@
+
+const API_URL = "https://mentora-bt9q.onrender.com";
+
 export const loginUser = async (email, password) => {
-  const res = await fetch("http://localhost:5000/login", {
+  const res = await fetch(`${API_URL}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -20,7 +23,7 @@ export const loginUser = async (email, password) => {
 };
 
 export const registerUser = async (name, email, password) => {
-  const res = await fetch("http://localhost:5000/register", {
+  const res = await fetch(`${API_URL}/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
