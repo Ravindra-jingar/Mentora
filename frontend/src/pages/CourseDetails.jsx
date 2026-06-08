@@ -12,13 +12,53 @@ import {
 import { useParams } from "react-router-dom"
 import {getDetailCourse} from '../services/courseService'
 import  Spinner  from "../components/ui/Spinner.jsx"
+import { enrollCourse, getCourses } from "../services/courseService";
+import { toast } from "react-toastify"
+import CourseCard from "../components/CourseCard.jsx";
 function CourseDetails() {
   
   const { id } = useParams()
   const [course, setCourse] = useState(null)
+  const [AllCourses, setAllCourses] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error , setError] = useState("")
 
+
+  async function handleEnroll(props) {
+  
+    try {
+  
+      await enrollCourse(
+        props._id
+      );
+  
+      toast.success(
+        "Enrollment Successful"
+      );
+  
+    } catch (error) {
+  
+      toast.error(
+        error.message
+      );
+  
+    }
+  }
+  useEffect(() => {
+      const fetchCourses = async () => {
+        try {
+          setLoading(true);
+          const data = await getCourses();
+          setAllCourses(data);
+        } catch (error) {
+          setError(error.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchCourses();
+    }, []);
  useEffect(() => {
   const fetchDetail = async () => {
     try { 
@@ -48,17 +88,18 @@ if (!course) {
     </div>
   );
 }
+
   return (
     <div className="bg-[#0f172a] text-white min-h-screen">
       {/* HERO SECTION */}
       <section className="max-w-7xl mx-auto px-6 py-12 grid lg:grid-cols-3 gap-10">
         {/* LEFT */}
         <div className="lg:col-span-2">
-          <span className="bg-blue-600 px-4 py-1 rounded-full text-sm font-medium">
+          <span className="bg-blue-600 px-4 py-1 rounded-full font-medium">
            {course.title}
           </span>
 
-          <h1 className="text-4xl md:text-5xl font-bold mt-5 leading-tight">
+          <h1 className="text-2xl  font-bold mt-5 leading-tight">
             {course.description}
           </h1>
 
@@ -112,15 +153,10 @@ if (!course) {
           <div className="p-6">
             <div className="flex items-center gap-3">
               <h2 className="text-4xl font-bold">₹{course.price}</h2>
-              <span className="line-through text-gray-400">₹{course.originalPrice}</span>
             </div>
 
-            <button className="w-full mt-6 bg-gradient-to-r from-blue-600 to-cyan-500 py-4 rounded-xl font-semibold text-lg hover:scale-[1.02] transition-all duration-300">
+            <button onClick={() => handleEnroll(course)} className="w-full mt-6 bg-gradient-to-r from-blue-600 to-cyan-500 py-4 rounded-xl font-semibold text-lg hover:scale-[1.02] transition-all duration-300">
               Enroll Now
-            </button>
-
-            <button className="w-full mt-4 border border-gray-600 py-4 rounded-xl font-semibold hover:bg-white hover:text-black transition">
-              Watch Preview
             </button>
 
             {/* FEATURES */}
@@ -280,38 +316,17 @@ if (!course) {
         </h2>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((course) => (
-            <div
-              key={course}
-              className="bg-[#1e293b] rounded-3xl overflow-hidden border border-gray-700 hover:scale-[1.02] transition"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3"
-                alt=""
-                className="h-52 w-full object-cover"
-              />
-
-              <div className="p-5">
-                <h3 className="text-xl font-semibold">
-                  React Development Course
-                </h3>
-
-                <p className="text-gray-400 mt-2">
-                  Learn modern React with projects.
-                </p>
-
-                <div className="flex justify-between items-center mt-5">
-                  <span className="text-2xl font-bold">
-                    ₹799
-                  </span>
-
-                  <button className="bg-blue-600 px-5 py-2 rounded-lg hover:bg-blue-500 transition">
-                    View
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+ {  AllCourses.slice(0, 3).map((course) =>(
+          <CourseCard
+              key={course._id}
+              id={course._id}
+           
+              {...course}
+  buttonText="Enroll"
+  buttonAction={() => handleEnroll(course)}
+   
+            />
+))}
         </div>
       </section>
     </div>

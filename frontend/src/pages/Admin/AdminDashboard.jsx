@@ -175,7 +175,7 @@ const totalRevenue  = enrolledCourses.reduce((acc, item)=>{
 
 <StatsCard
    title="Revenue"
-   value={"$" +  totalRevenue }
+   value={"₹" +  totalRevenue }
    growth="+12% this week"
    icon={<Wallet size={28} />}
    iconBg="

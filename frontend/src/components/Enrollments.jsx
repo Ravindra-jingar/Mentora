@@ -6,6 +6,7 @@ import EmptyState from "../components/ui/EmptyState";
 import {getMyEnrollments, removeEnrollment} from "../services/courseService";
 function Enrollments() {
 const [savedCourses,setSavedCourses] =  useState([]);
+const [error, setError] = useState("")
   async function removeCourse(id) {
 
   try {
@@ -20,7 +21,7 @@ const [savedCourses,setSavedCourses] =  useState([]);
 
   } catch (error) {
 
-    console.log(error);
+  setError(error.message);
 
   }
 }
@@ -37,7 +38,7 @@ useEffect(() => {
 
       } catch (error) {
 
-         console.log(error)
+         
 
       }
 
@@ -63,7 +64,8 @@ useEffect(() => {
                 
                 <CourseCard
               key={course._id}
-          {...course.courseId}
+              id={course.courseId._id}
+              {...course.courseId}
            
   
              buttonText="Remove"

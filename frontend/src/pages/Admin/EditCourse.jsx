@@ -118,7 +118,8 @@ if (emptyField) {
           onChange={(e) => setPrice(e.target.value)}
         />
 
-        <textarea
+        <AuthInput
+          type="text"
           placeholder="Course Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
