@@ -5,7 +5,7 @@ import AuthLayout from "../components/Layout/AuthLayout";
 import AuthInput from "../components/ui/AuthInput";
 import { registerUser} from "../services/authService";
 import Spinner from "../components/ui/Spinner";
-import { Button } from "../components/ui/Button"
+import  Button  from "../components/ui/Button"
 function Register() {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
