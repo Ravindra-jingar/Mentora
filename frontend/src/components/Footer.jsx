@@ -1,3 +1,4 @@
+const API_URL = "https://mentora-bt9q.onrender.com";
 function Footer() {
   return (
     <footer className="bg-slate-900 text-gray-300">
@@ -25,7 +26,7 @@ function Footer() {
               <li><a href="/">Home</a></li>
               <li><a href="/about">About</a></li>
               <li><a href="/courses">Courses</a></li>
-              <li><a href="/contact">Contact</a></li>
+              
             </ul>
           </div>
 
