@@ -66,7 +66,7 @@ import { getAllEnrollments } from "../../services/courseService"
   ]);
 
   // Status Colors
-
+console.log(enrolledCourses)
   const getStatusStyle = (status) => {
 
     if (status === "Active") {

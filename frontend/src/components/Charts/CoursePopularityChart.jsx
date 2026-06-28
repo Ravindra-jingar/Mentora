@@ -16,7 +16,7 @@ const COLORS = [
 
 function CoursePopularityChart({ data }) {
   const total = data.reduce(
-  (sum, item) => sum + item.value,
+  (sum, item) => sum + (item?.value || 0),
   0
 );
 // const [courses, setCourses] = useState([])

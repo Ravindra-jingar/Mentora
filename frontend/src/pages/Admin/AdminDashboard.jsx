@@ -107,7 +107,7 @@ const totalStudents =  students.length
 const recentEnrollments = enrolledCourses.slice(0, 5)
 
 const totalRevenue  = enrolledCourses.reduce((acc, item)=>{
-  const price = Number (item.courseId.price.replace(/[^0-9]/g, ""))
+  const price = Number ( item?.courseId?.price?.replace(/[^0-9]/g, "") || 0)
   return acc + price
 },0)
 
